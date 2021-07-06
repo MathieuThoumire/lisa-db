@@ -1,10 +1,10 @@
-import { Chance } from "chance";
+// import { Chance } from "chance";
 
-import {
-  DomainCategoryLocaleVersion,
-  DomainLocaleVersion,
-  GuideLocale,
-} from "./Models";
+// import {
+//   DomainCategoryLocaleVersion,
+//   DomainLocaleVersion,
+//   GuideLocaleVersion,
+// } from "./Models";
 
 export const lorem = (length: number): string => {
   let value = ``;
@@ -14,95 +14,95 @@ export const lorem = (length: number): string => {
   return value.slice(0, length - 1);
 };
 
-const chance = new Chance(280147921757644);
+// const chance = new Chance(280147921757644);
 
-export type MockDatabase = {
-  readonly locales: { readonly localeId: string }[];
-  readonly domainCategories: {
-    readonly domainCategoryId: string;
-    readonly domainCategoryLocales: DomainCategoryLocaleVersion[];
-    readonly domains: {
-      readonly domainId: string;
-      readonly domainLocales: Omit<DomainLocaleVersion, "domainId">[];
-      readonly guides: {
-        readonly guideId: string;
-        readonly guideLocales: (GuideLocale & {
-          readonly guideLocaleAuthors: {
-            readonly authorId: string;
-          }[];
-        })[];
-      }[];
-    }[];
-  }[];
+// export type MockDatabase = {
+//   readonly locales: { readonly localeId: string }[];
+//   readonly domainCategories: {
+//     readonly domainCategoryId: string;
+//     readonly domainCategoryLocales: DomainCategoryLocaleVersion[];
+//     readonly domains: {
+//       readonly domainId: string;
+//       readonly domainLocales: Omit<DomainLocaleVersion, "domainId">[];
+//       readonly guides: {
+//         readonly guideId: string;
+//         readonly guideLocales: (GuideLocaleVersion & {
+//           readonly guideLocaleAuthors: {
+//             readonly authorId: string;
+//           }[];
+//         })[];
+//       }[];
+//     }[];
+//   }[];
 
-  readonly authors: {
-    readonly authorId: string;
-    readonly firstName: string;
-    readonly lastName: string;
-    readonly portraitHref: string;
-  }[];
-};
+//   readonly authors: {
+//     readonly authorId: string;
+//     readonly firstName: string;
+//     readonly lastName: string;
+//     readonly portraitHref: string;
+//   }[];
+// };
 
-const mockDatabase = (): MockDatabase => {
-  const locales: MockDatabase["locales"] = [
-    { localeId: `en` },
-    { localeId: `fr` },
-    { localeId: `pt` },
-  ];
-  const authors: MockDatabase["authors"] = new Array(
-    chance.integer({ min: 5, max: 10 }),
-  )
-    .fill(null)
-    .map((_, key) => ({
-      authorId: `author-${key}`,
-      firstName: chance.first(),
-      lastName: chance.last(),
-      portraitHref: chance.url(),
-    }));
+// const mockDatabase = (): MockDatabase => {
+//   const locales: MockDatabase["locales"] = [
+//     { localeId: `en` },
+//     { localeId: `fr` },
+//     { localeId: `pt` },
+//   ];
+//   const authors: MockDatabase["authors"] = new Array(
+//     chance.integer({ min: 5, max: 10 }),
+//   )
+//     .fill(null)
+//     .map((_, key) => ({
+//       authorId: `author-${key}`,
+//       firstName: chance.first(),
+//       lastName: chance.last(),
+//       portraitHref: chance.url(),
+//     }));
 
-  const domainCategories: MockDatabase["domainCategories"] = [
-    `cognition`,
-    `behavior`,
-  ].map((domainCategoryId) => ({
-    domainCategoryId,
-    domainCategoryLocales: [
-      {
-        domainCategory: `string`,
-        localeId: `string`,
-        title: `string`,
-        body: `string`,
-      },
-    ],
-    domains: [`${domainCategoryId}-1`, `${domainCategoryId}-2`].map(
-      (
-        domainId,
-      ): MockDatabase["domainCategories"][number]["domains"][number] => ({
-        domainId,
-        domainLocales: [],
-        guides: [`${domainId}-1`, `${domainId}-2`].map((guideId) => ({
-          guideId,
-          guideLocales: locales.map(
-            ({
-              localeId,
-            }): MockDatabase["domainCategories"][number]["domains"][number]["guides"][number]["guideLocales"][number] => ({
-              guideId,
-              localeId,
-              title: `Title for ${guideId}-${localeId}`,
-              body: `Body for ${guideId}-${localeId}`,
-              guideLocaleAuthors: chance
-                .pickset(authors)
-                .map(({ authorId }) => ({ authorId })),
-            }),
-          ),
-        })),
-      }),
-    ),
-  }));
-  return {
-    authors,
-    domainCategories,
-    locales,
-  };
-};
+//   const domainCategories: MockDatabase["domainCategories"] = [
+//     `cognition`,
+//     `behavior`,
+//   ].map((domainCategoryId) => ({
+//     domainCategoryId,
+//     domainCategoryLocales: [
+//       {
+//         domainCategory: `string`,
+//         localeId: `string`,
+//         title: `string`,
+//         body: `string`,
+//       },
+//     ],
+//     domains: [`${domainCategoryId}-1`, `${domainCategoryId}-2`].map(
+//       (
+//         domainId,
+//       ): MockDatabase["domainCategories"][number]["domains"][number] => ({
+//         domainId,
+//         domainLocales: [],
+//         guides: [`${domainId}-1`, `${domainId}-2`].map((guideId) => ({
+//           guideId,
+//           guideLocales: locales.map(
+//             ({
+//               localeId,
+//             }): MockDatabase["domainCategories"][number]["domains"][number]["guides"][number]["guideLocales"][number] => ({
+//               guideId,
+//               localeId,
+//               name: `Title for ${guideId}-${localeId}`,
+//               contentMarkdown: `Body for ${guideId}-${localeId}`,
+//               guideLocaleAuthors: chance
+//                 .pickset(authors)
+//                 .map(({ authorId }) => ({ authorId })),
+//             }),
+//           ),
+//         })),
+//       }),
+//     ),
+//   }));
+//   return {
+//     authors,
+//     domainCategories,
+//     locales,
+//   };
+// };
 
-export const mockedDatabase = mockDatabase();
+// export const mockedDatabase = mockDatabase();

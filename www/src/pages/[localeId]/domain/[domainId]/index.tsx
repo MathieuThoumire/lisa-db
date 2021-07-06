@@ -13,24 +13,25 @@ import {
 import { completeDataList } from "@lisa-db/sdk/build/utils";
 import { z } from "zod";
 
-import { DomainCategoryLocaleVersion } from "../../../../lib/Models";
 import Footer from "../../../../components/Shell/Footer";
 import TopBar from "../../../../components/Shell/TopBar/TopBar";
 import { SideBar } from "../../../../components/Shell/SideBar/SideBar";
 import { SearchBar } from "../../../../components/Search/SearchBar";
-import { getLisaDbClientFromEnv } from "../../../../lib/LisaDbClient";
+import { DomainLocaleVersion } from "../../../../lib/Models";
 import { lorem } from "../../../../lib/MockData";
+import { getLisaDbClientFromEnv } from "../../../../lib/LisaDbClient";
+// import { Link } from "../../../../../../components/Routing/Link";
 
 type DomainPageStaticProps = {
-  readonly domainCategoryLocaleVersion: DomainCategoryLocaleVersion;
+  readonly domainLocaleVersion: DomainLocaleVersion;
 };
 
-const DomainCategoryPage: FunctionComponent<DomainPageStaticProps> = ({
-  domainCategoryLocaleVersion: { name },
-  domainCategoryLocaleVersion: { localeId },
-  domainCategoryLocaleVersion: { domainCategoryId },
-  domainCategoryLocaleVersion: { domainCategoryLocaleVersionId },
-  domainCategoryLocaleVersion: { contentMarkdown },
+const DomainIdPage: FunctionComponent<DomainPageStaticProps> = ({
+  domainLocaleVersion: { domainId, domainLocaleVersionId },
+
+  domainLocaleVersion: { localeId },
+  domainLocaleVersion: { name },
+  domainLocaleVersion: { contentMarkdown },
 }) => {
   return (
     <Fragment>
@@ -56,7 +57,7 @@ const DomainCategoryPage: FunctionComponent<DomainPageStaticProps> = ({
             <Flex justifyContent="space-between">
               <Flex>
                 <Heading as="h2" size="lg" w="100%" m="auto" padding={10}>
-                  Cognition{` `}
+                  Attention{` `}
                 </Heading>
               </Flex>
             </Flex>
@@ -66,8 +67,8 @@ const DomainCategoryPage: FunctionComponent<DomainPageStaticProps> = ({
                 <Text justifyContent="center" align="justify" w="90%" ml={10}>
                   {` `}
                   {lorem(1500)}
-                  {name},{localeId},{domainCategoryId},
-                  {domainCategoryLocaleVersionId},{contentMarkdown},
+                  {name},{localeId}, ,{contentMarkdown},{` `}
+                  {domainId},{domainLocaleVersionId},
                 </Text>
               </Box>
             </Flex>
@@ -80,23 +81,16 @@ const DomainCategoryPage: FunctionComponent<DomainPageStaticProps> = ({
           <Box w="90%" m="auto">
             <UnorderedList>
               <ListItem>
-                <Link href="/en/domain-category/emotion">emotions</Link>
+                <Link href="/en/domain/emotion">emotions</Link>
               </ListItem>
               <ListItem>
-                <Link href="/en/domain-category/learning">learning</Link>
+                <Link href="/en/domain/apprentissage">apprentissage</Link>
               </ListItem>
               <ListItem>
-                <Link href="/en/domain-category/comportement">
-                  comportement
-                </Link>
+                <Link href="/en/domain/cognition">cognition</Link>
               </ListItem>
               <ListItem>
-                <Link href="/en/domain-category/learning">learning</Link>
-              </ListItem>
-              <ListItem>
-                <Link href="/en/domain-category/Apprentisage">
-                  Apprentisage
-                </Link>
+                <Link href="/en/domain/learning">learning</Link>
               </ListItem>
             </UnorderedList>
           </Box>
@@ -117,21 +111,22 @@ const DomainCategoryPage: FunctionComponent<DomainPageStaticProps> = ({
 export const getStaticProps: GetStaticProps<DomainPageStaticProps> = async ({
   params,
 }) => {
-  const { localeId, domainCategoryId } = z
+  const { localeId, domainId } = z
     .object({
       localeId: z.string(),
-      domainCategoryId: z.string(),
+
+      domainId: z.string(),
     })
     .parse(params);
 
   const client = await getLisaDbClientFromEnv();
 
-  const [domainCategoryLocale] = await client
-    .items(`lisa_domain_category_locale`)
+  const [domainLocale] = await client
+    .items(`lisa_domain_locale`)
     .readMany({
       filter: {
+        domain_id: domainId,
         locale_id: localeId,
-        domain_category_id: domainCategoryId,
       },
       limit: 1,
     })
@@ -141,19 +136,18 @@ export const getStaticProps: GetStaticProps<DomainPageStaticProps> = async ({
     {
       content_markdown: contentMarkdown,
       name,
-      lisa_domain_category_locale_version_id: domainCategoryLocaleVersionId,
+      lisa_domain_locale_version_id: domainLocaleVersionId,
     },
   ] = await client
-    .items(`lisa_domain_category_locale_version`)
+    .items(`lisa_domain_locale_version`)
     .readMany({
       filter: {
-        lisa_domain_category_locale_id:
-          domainCategoryLocale.lisa_domain_category_locale_id,
+        lisa_domain_locale_id: domainLocale.lisa_domain_locale_id,
       },
     })
     .then(completeDataList)
-    .then((domainCategoryLocaleVersions) =>
-      domainCategoryLocaleVersions.sort(
+    .then((domainLocaleVersions) =>
+      domainLocaleVersions.sort(
         (a, b) =>
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
       ),
@@ -161,38 +155,43 @@ export const getStaticProps: GetStaticProps<DomainPageStaticProps> = async ({
 
   return {
     props: {
-      domainCategoryLocaleVersion: {
-        domainCategoryId,
-        localeId,
+      domainLocaleVersion: {
         contentMarkdown,
-        domainCategoryLocaleVersionId,
+
+        domainLocaleVersionId,
+        domainId,
+        localeId,
         name,
       },
     },
   };
 };
 
+// http://localhost:4290/en/domain-category/cognition/domain/cognition-1
 export const getStaticPaths: GetStaticPaths<{
   readonly localeId: string;
-  readonly domainCategoryId: string;
+
+  readonly domainId: string;
 }> = async () => {
   const client = await getLisaDbClientFromEnv();
-  const domainDomainCategoryLocales = await client
-    .items(`lisa_domain_category_locale`)
+
+  const domainLocales = await client
+    .items(`lisa_domain_locale`)
     .readMany()
     .then(completeDataList);
 
   return {
-    paths: domainDomainCategoryLocales.flatMap(
-      ({ domain_category_id: domainCategoryId, locale_id: localeId }) => ({
+    paths: domainLocales.map(({ domain_id: domainId, locale_id: localeId }) => {
+      return {
         params: {
-          domainCategoryId: z.string().parse(domainCategoryId),
           localeId: z.string().parse(localeId),
+
+          domainId: z.string().parse(domainId),
         },
-      }),
-    ),
+      };
+    }),
     fallback: false,
   };
 };
 
-export default DomainCategoryPage;
+export default DomainIdPage;

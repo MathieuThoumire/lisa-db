@@ -1,9 +1,9 @@
 import { Box, Image, Flex, Heading, Link } from "@chakra-ui/react";
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, Fragment } from "react";
 
 export const PreviewCard: FunctionComponent = () => {
   return (
-    <>
+    <Fragment>
       <Box
         w="xs"
         mx="auto"
@@ -34,6 +34,6 @@ export const PreviewCard: FunctionComponent = () => {
           </Flex>
         </Link>
       </Box>
-    </>
+    </Fragment>
   );
 };

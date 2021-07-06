@@ -1,5 +1,14 @@
-import { FunctionComponent, Fragment } from "react";
-import { Flex, Text, Box, Heading, Link } from "@chakra-ui/react";
+import React, { FunctionComponent, Fragment } from "react";
+import {
+  Flex,
+  Text,
+  Box,
+  Heading,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+} from "@chakra-ui/react";
+import { ChevronRightIcon } from "@chakra-ui/icons";
 
 import Footer from "../../../components/Shell/Footer";
 import TopBar from "../../../components/Shell/TopBar/TopBar";
@@ -12,22 +21,27 @@ const TeamPage: FunctionComponent = () => {
 
       <Box textAlign="center" paddingTop="100">
         <Box>
-          <Link href="/en/about/approach" color="gray.400">
-            {` `}
-            Approach
-          </Link>
-          <Link href="/en/about/behavior" color="gray.400">
-            {` `}
-            Behavior
-          </Link>
-          <Link href="/en/about/history" color="gray.400">
-            {` `}
-            History
-          </Link>
-          <Link href="/en/about/team" color="gray.400">
-            {` `}
-            Team
-          </Link>
+          <Breadcrumb
+            spacing="8px"
+            separator={<ChevronRightIcon color="gray.500" />}
+          >
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/en/about/approach">
+                Approach
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/en/about/behavior">
+                Behavior
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/en/about/history"> History</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbItem isCurrentPage>
+              <BreadcrumbLink href="/en/about/team">Team</BreadcrumbLink>
+            </BreadcrumbItem>
+          </Breadcrumb>
         </Box>
         <Heading as="h1" size="4xl">
           About

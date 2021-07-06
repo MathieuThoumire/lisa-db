@@ -33,7 +33,7 @@ const TopBar: FunctionComponent = () => {
     >
       <Flex align="center" mr={5}>
         <Heading as="h1" size="lg">
-          <Link href="/"> L.I.S.A.</Link>
+          <Link href="/"> LISA</Link>
         </Heading>
       </Flex>
       <Box display={{ base: `block`, md: `none` }} onClick={MenuToggle}>
@@ -51,9 +51,17 @@ const TopBar: FunctionComponent = () => {
         <Text>
           <Link href="/"> Home</Link>
         </Text>
-
         <Text>
           <Link href="/en/about"> About us</Link>
+        </Text>
+        <Text>
+          <Link href="/en/search"> Search</Link>
+        </Text>
+        <Text>
+          <Link href="/en/explore"> Explore</Link>
+        </Text>
+        <Text>
+          <Link href="/en/resources"> Tools</Link>
         </Text>
       </Stack>
 

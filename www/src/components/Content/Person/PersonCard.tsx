@@ -1,12 +1,15 @@
 import { chakra, Box, Image, Flex, Icon, Heading } from "@chakra-ui/react";
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, Fragment } from "react";
 import { MdEmail, MdLocationOn } from "react-icons/md";
 import { AiFillGithub } from "react-icons/ai";
 import { BsFillBriefcaseFill } from "react-icons/bs";
 
-export const PersonCard: FunctionComponent = () => {
+export const PersonCard: FunctionComponent<{
+  readonly pictureSrc: string;
+}> = ({ pictureSrc }) => {
+  // les props
   return (
-    <>
+    <Fragment>
       <Box
         w="sm"
         mx="auto"
@@ -20,7 +23,7 @@ export const PersonCard: FunctionComponent = () => {
           h={56}
           fit="cover"
           objectPosition="center"
-          src="https://www.achievers.com/blog/wp-content/uploads/2020/05/05-27-20.jpg"
+          src={pictureSrc}
           alt="Collaborator photos"
         />
         <Flex alignItems="center" px={6} py={3} bg="gray.900">
@@ -57,6 +60,6 @@ export const PersonCard: FunctionComponent = () => {
           </Flex>
         </Box>
       </Box>
-    </>
+    </Fragment>
   );
 };

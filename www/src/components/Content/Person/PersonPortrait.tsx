@@ -1,9 +1,9 @@
 import { Box, Flex, Text, Avatar, Link } from "@chakra-ui/react";
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, Fragment } from "react";
 
 export const PersonPortrait: FunctionComponent = () => {
   return (
-    <>
+    <Fragment>
       <Link>
         <Flex m="3">
           <Avatar src="https://cdn4.iconfinder.com/data/icons/panda-2/512/lazy-panda-head-face-avatar-512.png" />
@@ -18,6 +18,6 @@ export const PersonPortrait: FunctionComponent = () => {
           </Box>
         </Flex>
       </Link>
-    </>
+    </Fragment>
   );
 };

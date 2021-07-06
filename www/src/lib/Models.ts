@@ -4,18 +4,16 @@ export type Guide = {
   readonly domainId: string;
 };
 
-export type GuideLocale = {
+export type GuideLocaleVersion = {
   readonly guideId: string;
   readonly localeId: string;
-  readonly title: string;
-  readonly body: string;
+  readonly name: string;
+  readonly contentMarkdown: string;
 };
 
 export type GuideLocaleAuthor = {
-  readonly authorId: string;
   readonly firstName: string;
   readonly lastName: string;
-  readonly portraitHref: string;
 };
 
 export type Domain = {
@@ -23,7 +21,6 @@ export type Domain = {
   readonly domainCategoryId: string;
 };
 export type DomainLocaleVersion = {
-  readonly domainCategoryId: string;
   readonly domainLocaleVersionId: string;
   readonly domainId: string;
   readonly localeId: string;
