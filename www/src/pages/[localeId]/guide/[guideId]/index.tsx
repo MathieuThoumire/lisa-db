@@ -20,16 +20,14 @@ import TopBar from "../../../../components/Shell/TopBar/TopBar";
 import { getLisaDbClientFromEnv } from "../../../../lib/LisaDbClient";
 import { lorem } from "../../../../lib/MockData";
 
-type GuidePageStaticProps = {
+type GuideIdPageStaticProps = {
   readonly localeId: string;
-  readonly domainCategoryId: string;
-  readonly domainId: string;
   readonly guideId: string;
   readonly guideLocaleVersion: GuideLocaleVersion;
   readonly guideLocaleAuthors: GuideLocaleAuthor[];
 };
 
-const GuidePage: FunctionComponent<GuidePageStaticProps> = () => {
+const GuidePage: FunctionComponent<GuideIdPageStaticProps> = () => {
   return (
     <Fragment>
       <TopBar />
@@ -101,14 +99,12 @@ const GuidePage: FunctionComponent<GuidePageStaticProps> = () => {
   );
 };
 
-export const getStaticProps: GetStaticProps<GuidePageStaticProps> = async ({
+export const getStaticProps: GetStaticProps<GuideIdPageStaticProps> = async ({
   params,
 }) => {
-  const { localeId, domainCategoryId, domainId, guideId } = z
+  const { localeId, guideId } = z
     .object({
       localeId: z.string(),
-      domainCategoryId: z.string(),
-      domainId: z.string(),
       guideId: z.string(),
     })
     .parse(params);
@@ -157,8 +153,6 @@ export const getStaticProps: GetStaticProps<GuidePageStaticProps> = async ({
 
   return {
     props: {
-      domainCategoryId,
-      domainId,
       localeId,
       guideId,
       guideLocaleVersion: {
@@ -186,53 +180,23 @@ export const getStaticProps: GetStaticProps<GuidePageStaticProps> = async ({
     },
   };
 };
-
-// http://localhost:4290/en/domain-category/cognition/domain/attention/guide/cognition_attention_educating
 export const getStaticPaths: GetStaticPaths<{
-  readonly localeId: string;
-  readonly domainCategoryId: string;
-  readonly domainId: string;
   readonly guideId: string;
+  readonly localeId: string;
 }> = async () => {
   const client = await getLisaDbClientFromEnv();
-
-  const domains = await client
-    .items(`lisa_domain`)
-    .readMany()
-    .then(completeDataList);
-
-  const domainGuides = await client
-    .items(`lisa_domain_guide`)
-    .readMany()
-    .then(completeDataList);
-
-  const guideLocales = await client
+  const guide = await client
     .items(`lisa_guide_locale`)
     .readMany()
     .then(completeDataList);
 
   return {
-    paths: guideLocales.flatMap(
-      ({ lisa_guide_id: guideId, locale_id: localeId }) =>
-        domainGuides
-          .filter((domainGuide) => domainGuide.lisa_guide_id === guideId)
-          .map(({ domain_id: domainId }) => {
-            const { domain_category_id: domainCategoryId } = z
-              .object({
-                domain_category_id: z.string(),
-              })
-              .parse(domains.find((domain) => domain.domain_id === domainId));
-
-            return {
-              params: {
-                localeId: z.string().parse(localeId),
-                domainCategoryId,
-                domainId: z.string().parse(domainId),
-                guideId: z.string().parse(guideId),
-              },
-            };
-          }),
-    ),
+    paths: guide.flatMap(({ lisa_guide_id: guideId, locale_id: localeId }) => ({
+      params: {
+        guideId: z.string().parse(guideId),
+        localeId: z.string().parse(localeId),
+      },
+    })),
     fallback: false,
   };
 };

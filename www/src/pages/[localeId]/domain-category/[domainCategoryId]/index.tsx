@@ -19,30 +19,32 @@ import TopBar from "../../../../components/Shell/TopBar/TopBar";
 import { SideBar } from "../../../../components/Shell/SideBar/SideBar";
 import { SearchBar } from "../../../../components/Search/SearchBar";
 import { getLisaDbClientFromEnv } from "../../../../lib/LisaDbClient";
-import { lorem } from "../../../../lib/MockData";
 
-type DomainPageStaticProps = {
+type DomainCategoryIdPageStaticProps = {
   readonly domainCategoryLocaleVersion: DomainCategoryLocaleVersion;
 };
 
-const DomainCategoryPage: FunctionComponent<DomainPageStaticProps> = ({
-  domainCategoryLocaleVersion: { name },
-  domainCategoryLocaleVersion: { localeId },
-  domainCategoryLocaleVersion: { domainCategoryId },
-  domainCategoryLocaleVersion: { domainCategoryLocaleVersionId },
-  domainCategoryLocaleVersion: { contentMarkdown },
-}) => {
-  return (
-    <Fragment>
-      <TopBar />
+const DomainCategoryPage: FunctionComponent<DomainCategoryIdPageStaticProps> =
+  ({
+    domainCategoryLocaleVersion: {
+      name,
+      localeId,
+      domainCategoryId,
+      domainCategoryLocaleVersionId,
+      contentMarkdown,
+    },
+  }) => {
+    return (
+      <Fragment>
+        <TopBar />
 
-      <Flex paddingTop={100} w="80%" m="auto">
-        <SearchBar />
-      </Flex>
-      <Flex justifyContent="center" align="center">
-        <Box w="80%">
-          <Box>
-            {/* <Link
+        <Flex paddingTop={100} w="80%" m="auto">
+          <SearchBar />
+        </Flex>
+        <Flex justifyContent="center" align="center">
+          <Box w="80%">
+            <Box>
+              {/* <Link
               href={{
                 pathname: `/[localeId]/domain-category/[domainCategoryId]`,
                 query: {
@@ -53,124 +55,121 @@ const DomainCategoryPage: FunctionComponent<DomainPageStaticProps> = ({
             >
               {props.domainCategoryId}
             </Link> */}
-            <Flex justifyContent="space-between">
-              <Flex>
-                <Heading as="h2" size="lg" w="100%" m="auto" padding={10}>
-                  Cognition{` `}
-                </Heading>
+              <Flex justifyContent="space-between">
+                <Flex>
+                  <Heading as="h2" size="lg" w="100%" m="auto" padding={10}>
+                    Cognition{` `}
+                  </Heading>
+                </Flex>
               </Flex>
-            </Flex>
-            <Flex>
-              <Box>
-                {` `}
-                <Text justifyContent="center" align="justify" w="90%" ml={10}>
+              <Flex>
+                <Box>
                   {` `}
-                  {lorem(1500)}
-                  {name},{localeId},{domainCategoryId},
-                  {domainCategoryLocaleVersionId},{contentMarkdown},
-                </Text>
-              </Box>
-            </Flex>
+                  <Text justifyContent="center" align="justify" w="90%" ml={10}>
+                    {` `}
+                    {name},{localeId},{domainCategoryId},
+                    {domainCategoryLocaleVersionId},{contentMarkdown},
+                  </Text>
+                </Box>
+              </Flex>
+            </Box>
+            <Box>
+              <Heading as="h2" size="lg" w="100%" m="auto" padding="10">
+                Explore its subdomains :
+              </Heading>
+            </Box>
+            <Box w="90%" m="auto">
+              <UnorderedList>
+                <ListItem>
+                  <Link href="/en/domain-category/emotion">emotions</Link>
+                </ListItem>
+                <ListItem>
+                  <Link href="/en/domain-category/learning">learning</Link>
+                </ListItem>
+                <ListItem>
+                  <Link href="/en/domain-category/comportement">
+                    comportement
+                  </Link>
+                </ListItem>
+                <ListItem>
+                  <Link href="/en/domain-category/learning">learning</Link>
+                </ListItem>
+                <ListItem>
+                  <Link href="/en/domain-category/Apprentisage">
+                    Apprentisage
+                  </Link>
+                </ListItem>
+              </UnorderedList>
+            </Box>
+            <Box w="80%" m="auto" p="1">
+              <Divider />
+            </Box>
           </Box>
           <Box>
-            <Heading as="h2" size="lg" w="100%" m="auto" padding="10">
-              Explore its subdomains :
-            </Heading>
+            <SideBar />
           </Box>
-          <Box w="90%" m="auto">
-            <UnorderedList>
-              <ListItem>
-                <Link href="/en/domain-category/emotion">emotions</Link>
-              </ListItem>
-              <ListItem>
-                <Link href="/en/domain-category/learning">learning</Link>
-              </ListItem>
-              <ListItem>
-                <Link href="/en/domain-category/comportement">
-                  comportement
-                </Link>
-              </ListItem>
-              <ListItem>
-                <Link href="/en/domain-category/learning">learning</Link>
-              </ListItem>
-              <ListItem>
-                <Link href="/en/domain-category/Apprentisage">
-                  Apprentisage
-                </Link>
-              </ListItem>
-            </UnorderedList>
-          </Box>
-          <Box w="80%" m="auto" p="1">
-            <Divider />
-          </Box>
-        </Box>
-        <Box>
-          <SideBar />
-        </Box>
-      </Flex>
-
-      <Footer />
-    </Fragment>
-  );
-};
-
-export const getStaticProps: GetStaticProps<DomainPageStaticProps> = async ({
-  params,
-}) => {
-  const { localeId, domainCategoryId } = z
-    .object({
-      localeId: z.string(),
-      domainCategoryId: z.string(),
-    })
-    .parse(params);
-
-  const client = await getLisaDbClientFromEnv();
-
-  const [domainCategoryLocale] = await client
-    .items(`lisa_domain_category_locale`)
-    .readMany({
-      filter: {
-        locale_id: localeId,
-        domain_category_id: domainCategoryId,
-      },
-      limit: 1,
-    })
-    .then(completeDataList);
-
-  const [
-    {
-      content_markdown: contentMarkdown,
-      name,
-      lisa_domain_category_locale_version_id: domainCategoryLocaleVersionId,
-    },
-  ] = await client
-    .items(`lisa_domain_category_locale_version`)
-    .readMany({
-      filter: {
-        lisa_domain_category_locale_id:
-          domainCategoryLocale.lisa_domain_category_locale_id,
-      },
-    })
-    .then(completeDataList)
-    .then((domainCategoryLocaleVersions) =>
-      domainCategoryLocaleVersions.sort(
-        (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-      ),
+        </Flex>
+        <Footer />
+      </Fragment>
     );
-
-  return {
-    props: {
-      domainCategoryLocaleVersion: {
-        domainCategoryId,
-        localeId,
-        contentMarkdown,
-        domainCategoryLocaleVersionId,
-        name,
-      },
-    },
   };
-};
+
+export const getStaticProps: GetStaticProps<DomainCategoryIdPageStaticProps> =
+  async ({ params }) => {
+    const { localeId, domainCategoryId } = z
+      .object({
+        localeId: z.string(),
+        domainCategoryId: z.string(),
+      })
+      .parse(params);
+
+    const client = await getLisaDbClientFromEnv();
+
+    const [domainCategoryLocale] = await client
+      .items(`lisa_domain_category_locale`)
+      .readMany({
+        filter: {
+          locale_id: localeId,
+          domain_category_id: domainCategoryId,
+        },
+        limit: 1,
+      })
+      .then(completeDataList);
+
+    const [
+      {
+        content_markdown: contentMarkdown,
+        name,
+        lisa_domain_category_locale_version_id: domainCategoryLocaleVersionId,
+      },
+    ] = await client
+      .items(`lisa_domain_category_locale_version`)
+      .readMany({
+        filter: {
+          lisa_domain_category_locale_id:
+            domainCategoryLocale.lisa_domain_category_locale_id,
+        },
+      })
+      .then(completeDataList)
+      .then((domainCategoryLocaleVersions) =>
+        domainCategoryLocaleVersions.sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+        ),
+      );
+
+    return {
+      props: {
+        domainCategoryLocaleVersion: {
+          domainCategoryId,
+          localeId,
+          contentMarkdown,
+          domainCategoryLocaleVersionId,
+          name,
+        },
+      },
+    };
+  };
 
 export const getStaticPaths: GetStaticPaths<{
   readonly localeId: string;

@@ -106,8 +106,8 @@ const IndexPage: FunctionComponent = () => {
         <Link href="/en/guide">/en/guide</Link>
       </Box>
       <Box>
-        <Link href="/en/guide/cognition-attention">
-          /en/guide/cognition-attention
+        <Link href="/en/guide/cognition_attention_educating">
+          /en/guide/cognition_attention_educating
         </Link>
       </Box>
       <Box>

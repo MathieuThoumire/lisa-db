@@ -22,16 +22,18 @@ import { lorem } from "../../../../lib/MockData";
 import { getLisaDbClientFromEnv } from "../../../../lib/LisaDbClient";
 // import { Link } from "../../../../../../components/Routing/Link";
 
-type DomainPageStaticProps = {
+type DomainIdPageStaticProps = {
   readonly domainLocaleVersion: DomainLocaleVersion;
 };
 
-const DomainIdPage: FunctionComponent<DomainPageStaticProps> = ({
-  domainLocaleVersion: { domainId, domainLocaleVersionId },
-
-  domainLocaleVersion: { localeId },
-  domainLocaleVersion: { name },
-  domainLocaleVersion: { contentMarkdown },
+const DomainIdPage: FunctionComponent<DomainIdPageStaticProps> = ({
+  domainLocaleVersion: {
+    domainId,
+    domainLocaleVersionId,
+    localeId,
+    name,
+    contentMarkdown,
+  },
 }) => {
   return (
     <Fragment>
@@ -108,13 +110,12 @@ const DomainIdPage: FunctionComponent<DomainPageStaticProps> = ({
   );
 };
 
-export const getStaticProps: GetStaticProps<DomainPageStaticProps> = async ({
+export const getStaticProps: GetStaticProps<DomainIdPageStaticProps> = async ({
   params,
 }) => {
   const { localeId, domainId } = z
     .object({
       localeId: z.string(),
-
       domainId: z.string(),
     })
     .parse(params);
@@ -157,7 +158,6 @@ export const getStaticProps: GetStaticProps<DomainPageStaticProps> = async ({
     props: {
       domainLocaleVersion: {
         contentMarkdown,
-
         domainLocaleVersionId,
         domainId,
         localeId,
@@ -167,10 +167,8 @@ export const getStaticProps: GetStaticProps<DomainPageStaticProps> = async ({
   };
 };
 
-// http://localhost:4290/en/domain-category/cognition/domain/cognition-1
 export const getStaticPaths: GetStaticPaths<{
   readonly localeId: string;
-
   readonly domainId: string;
 }> = async () => {
   const client = await getLisaDbClientFromEnv();

@@ -2,20 +2,49 @@ import React, { Fragment, FunctionComponent } from "react";
 import {
   Flex,
   Heading,
-  List,
   ListItem,
-  Link,
-  Text,
   Box,
   UnorderedList,
+  Text,
 } from "@chakra-ui/react";
+import { GetStaticPaths, GetStaticProps } from "next";
+import { z } from "zod";
+import { completeDataList, LisaDbCollections } from "@lisa-db/sdk";
 
 import Footer from "../../../components/Shell/Footer";
 import TopBar from "../../../components/Shell/TopBar/TopBar";
 import { SideBar } from "../../../components/Shell/SideBar/SideBar";
 import { SearchBar } from "../../../components/Search/SearchBar";
+import { getLisaDbClientFromEnv } from "../../../lib/LisaDbClient";
+import { Link } from "../../../components/Routing/Link";
 
-const DomainPage: FunctionComponent = () => {
+type DomainPageStaticProps = {
+  readonly localeId: string;
+  readonly domains: Required<LisaDbCollections["lisa_domain"]>[];
+  readonly domainLocales: Required<LisaDbCollections["lisa_domain_locale"]>[];
+  readonly domainLocaleVersions: Required<
+    LisaDbCollections["lisa_domain_locale_version"]
+  >[];
+  readonly domainCategories: Required<
+    LisaDbCollections["lisa_domain_category"]
+  >[];
+  readonly domainCategoryLocales: Required<
+    LisaDbCollections["lisa_domain_category_locale"]
+  >[];
+  readonly domainCategoryLocaleVersions: Required<
+    LisaDbCollections["lisa_domain_category_locale_version"]
+  >[];
+};
+
+const DomainPage: FunctionComponent<DomainPageStaticProps> = ({
+  localeId,
+  domains,
+  domainLocales,
+  domainLocaleVersions,
+  domainCategories,
+  domainCategoryLocales,
+  domainCategoryLocaleVersions,
+}) => {
   return (
     //MAP patern react tu renvoie un element react
     //KEY
@@ -37,82 +66,91 @@ const DomainPage: FunctionComponent = () => {
             </Flex>
             <Flex>
               <UnorderedList>
-                <ListItem>
-                  <Link href="/en/domain-category/behavior">
-                    <Text fontSize="3xl">Behavior</Text>
-                  </Link>
-                </ListItem>
-                <List>
-                  <ListItem>
-                    {` `}
-                    <Link href="/en/domain-category/behavior">Behavior</Link>
-                  </ListItem>
-                  <ListItem>
-                    {` `}
-                    <Link href="/en/domain-category/behavior">Behavior</Link>
-                  </ListItem>
-                  <ListItem>
-                    {` `}
-                    <Link href="/en/domain-category/behavior">Behavior</Link>
-                  </ListItem>
-                  <ListItem>
-                    {` `}
-                    <Link href="/en/domain-category/behavior">Behavior</Link>
-                  </ListItem>
-                </List>
-                <ListItem>
-                  <Link href="/en/domain-category/cognition">
-                    <Text fontSize="3xl">Cognition</Text>
-                  </Link>
-                </ListItem>
-                <List>
-                  <ListItem>
-                    {` `}
-                    <Link href="/en/domain-category/cognition">cognition</Link>
-                  </ListItem>
-                  <ListItem>
-                    {` `}
-                    <Link href="/en/domain-category/cognition">cognition</Link>
-                  </ListItem>
-                  <ListItem>
-                    {` `}
-                    <Link href="/en/domain-category/cognition">cognition</Link>
-                  </ListItem>
-                  <ListItem>
-                    {` `}
-                    <Link href="/en/domain-category/cognition">cognition</Link>
-                  </ListItem>
-                </List>
-                <ListItem>
-                  <Link href="/en/domain-category/emotions">
-                    <Text fontSize="3xl">Emotions</Text>
-                  </Link>
-                </ListItem>
-                <ListItem>
-                  <Link href="/en/domain-category/health">
-                    <Text fontSize="3xl">Health</Text>
-                  </Link>
-                </ListItem>
-                <ListItem>
-                  <Link href="/en/domain-category/language">
-                    <Text fontSize="3xl">Language</Text>
-                  </Link>
-                </ListItem>
-                <ListItem>
-                  <Link href="/en/domain-category/learning">
-                    <Text fontSize="3xl">Learning</Text>
-                  </Link>
-                </ListItem>
-                <ListItem>
-                  <Link href="/en/domain-category/personal_and_personality">
-                    <Text fontSize="3xl">Personal and personality</Text>
-                  </Link>
-                </ListItem>
-                <ListItem>
-                  <Link href="/en/domain-category/Social_function">
-                    <Text fontSize="3xl">Social function</Text>
-                  </Link>
-                </ListItem>
+                {domainCategories.map((domainCategory) => {
+                  const domainCategoryLocale = domainCategoryLocales.find(
+                    (domainCategoryLocale) =>
+                      domainCategoryLocale.domain_category_id ===
+                        domainCategory.domain_category_id &&
+                      domainCategoryLocale.locale_id === localeId,
+                  );
+                  if (!domainCategoryLocale) {
+                    return null;
+                  }
+                  const domainCategoryLocaleVersion =
+                    domainCategoryLocaleVersions
+                      .filter(
+                        (domainCategoryLocaleVersion) =>
+                          domainCategoryLocaleVersion.lisa_domain_category_locale_id ===
+                          domainCategoryLocale.lisa_domain_category_locale_id,
+                      )
+                      .sort(
+                        (a, b) =>
+                          new Date(b.created_at).getTime() -
+                          new Date(a.created_at).getTime(),
+                      )[0];
+                  if (!domainCategoryLocaleVersion) {
+                    return null;
+                  }
+
+                  return (
+                    <ListItem key={domainCategory.domain_category_id}>
+                      <Link
+                        href={`/${localeId}/domain-category/${domainCategory.domain_category_id}`}
+                      >
+                        {domainCategoryLocaleVersion.name}
+                      </Link>
+                      <UnorderedList>
+                        {domains
+                          .filter(
+                            (domain) =>
+                              domain.domain_category_id ===
+                              domainCategory.domain_category_id,
+                          )
+                          .map((domain) => {
+                            const domainLocale = domainLocales.find(
+                              (domainLocale) =>
+                                domainLocale.domain_id === domain.domain_id &&
+                                domainLocale.locale_id === localeId,
+                            );
+                            if (!domainLocale) {
+                              return null;
+                            }
+
+                            const domainLocaleVersion = domainLocaleVersions
+                              .filter(
+                                (domainLocaleVersion) =>
+                                  domainLocaleVersion.lisa_domain_locale_id ===
+                                  domainLocale.lisa_domain_locale_id,
+                              )
+                              .sort(
+                                (a, b) =>
+                                  new Date(b.created_at).getTime() -
+                                  new Date(a.created_at).getTime(),
+                              )[0];
+
+                            if (!domainLocaleVersion) {
+                              return null;
+                            }
+                            return (
+                              <Flex
+                                flexDirection="column"
+                                key={domain.domain_id}
+                              >
+                                <Link
+                                  href={`/${localeId}/domain/${domain.domain_id}`}
+                                >
+                                  {domainLocaleVersion.name}
+                                </Link>
+                                <Text>
+                                  {domainLocaleVersion.content_markdown}
+                                </Text>
+                              </Flex>
+                            );
+                          })}
+                      </UnorderedList>
+                    </ListItem>
+                  );
+                })}
               </UnorderedList>
             </Flex>
           </Box>
@@ -125,5 +163,82 @@ const DomainPage: FunctionComponent = () => {
     </Fragment>
   );
 };
+export const getStaticProps: GetStaticProps<DomainPageStaticProps> = async ({
+  params,
+}) => {
+  const { localeId } = z
+    .object({
+      localeId: z.string(),
+    })
+    .parse(params);
 
+  const client = await getLisaDbClientFromEnv();
+  const domains = await client
+    .items(`lisa_domain`)
+    .readMany()
+    .then(completeDataList);
+
+  const domainLocales = await client
+    .items(`lisa_domain_locale`)
+    .readMany()
+    .then(completeDataList);
+
+  const domainLocaleVersions = await client
+    .items(`lisa_domain_locale_version`)
+    .readMany()
+    .then(completeDataList);
+
+  const domainCategories = await client
+    .items(`lisa_domain_category`)
+    .readMany()
+    .then(completeDataList);
+
+  const domainCategoryLocales = await client
+    .items(`lisa_domain_category_locale`)
+    .readMany()
+    .then(completeDataList);
+
+  const domainCategoryLocaleVersions = await client
+    .items(`lisa_domain_category_locale_version`)
+    .readMany()
+    .then(completeDataList);
+
+  return {
+    props: {
+      localeId,
+      domains,
+      domainLocales,
+      domainLocaleVersions,
+      domainCategories,
+      domainCategoryLocales,
+      domainCategoryLocaleVersions,
+    },
+  };
+};
+
+export const getStaticPaths: GetStaticPaths<{
+  readonly localeId: string;
+
+  readonly domainId: string;
+}> = async () => {
+  const client = await getLisaDbClientFromEnv();
+
+  const domainLocales = await client
+    .items(`lisa_domain_locale`)
+    .readMany()
+    .then(completeDataList);
+
+  return {
+    paths: domainLocales.map(({ domain_id: domainId, locale_id: localeId }) => {
+      return {
+        params: {
+          localeId: z.string().parse(localeId),
+
+          domainId: z.string().parse(domainId),
+        },
+      };
+    }),
+    fallback: false,
+  };
+};
 export default DomainPage;
