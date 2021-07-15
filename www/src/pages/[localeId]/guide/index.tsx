@@ -4,28 +4,38 @@ import {
   Heading,
   ListItem,
   Link,
-  Text,
   Box,
   UnorderedList,
 } from "@chakra-ui/react";
 import { GetStaticPaths, GetStaticProps } from "next";
 import { z } from "zod";
 import { completeDataList } from "@lisa-db/sdk/build/utils";
+import { LisaDbCollections } from "@lisa-db/sdk";
 
 import Footer from "../../../components/Shell/Footer";
 import TopBar from "../../../components/Shell/TopBar/TopBar";
 import { SideBar } from "../../../components/Shell/SideBar/SideBar";
 import { SearchBar } from "../../../components/Search/SearchBar";
-import { GuideLocaleAuthor, GuideVersion } from "../../../lib/Models";
 import { getLisaDbClientFromEnv } from "../../../lib/LisaDbClient";
 
 type GuidePageStaticProps = {
   readonly localeId: string;
-  readonly guideLocaleVersion: GuideVersion;
-  readonly guideLocaleAuthors: GuideLocaleAuthor[];
+  readonly guide: Required<LisaDbCollections["lisa_guide"]>[];
+  readonly guideLocales: Required<LisaDbCollections["lisa_guide_locale"]>[];
+  readonly guideLocaleVersions: Required<
+    LisaDbCollections["lisa_guide_locale_version"]
+  >[];
+  readonly guideLocaleAuthor: Required<
+    LisaDbCollections["lisa_guide_locale_author"]
+  >[];
 };
 
-const DomainCategoryPage: FunctionComponent<GuidePageStaticProps> = () => {
+const GuidePage: FunctionComponent<GuidePageStaticProps> = ({
+  localeId,
+  guide,
+  guideLocales,
+  guideLocaleVersions,
+}) => {
   return (
     <Fragment>
       <TopBar />
@@ -44,21 +54,31 @@ const DomainCategoryPage: FunctionComponent<GuidePageStaticProps> = () => {
             </Flex>
             <Flex>
               <UnorderedList>
-                <ListItem>
-                  <Link href="/en/domain-category/behavior">
-                    <Text fontSize="3xl">Attention</Text>
-                  </Link>
-                </ListItem>
-                <ListItem>
-                  <Link href="/en/domain-category/emotions">
-                    <Text fontSize="3xl">Writing</Text>
-                  </Link>
-                </ListItem>
-                <ListItem>
-                  <Link href="/en/domain-category/health">
-                    <Text fontSize="3xl">Reading</Text>
-                  </Link>
-                </ListItem>
+                {guide.map((guide) => {
+                  const guideLocale = guideLocales.find(
+                    (guideLocale) =>
+                      guideLocale.lisa_guide_id === guide.lisa_guide_id &&
+                      guideLocale.locale_id === localeId,
+                  );
+                  if (!guideLocale) {
+                    return null;
+                  }
+                  const guideLocaleVersion = guideLocaleVersions.sort(
+                    (a, b) =>
+                      new Date(b.created_at).getTime() -
+                      new Date(a.created_at).getTime(),
+                  )[0];
+                  if (!guideLocaleVersion) {
+                    return null;
+                  }
+                  return (
+                    <ListItem key={guide.lisa_guide_id}>
+                      <Link href={`/${localeId}/guide/${guide.lisa_guide_id}`}>
+                        {guideLocaleVersion.name}
+                      </Link>
+                    </ListItem>
+                  );
+                })}
               </UnorderedList>
             </Flex>
           </Box>
@@ -71,6 +91,7 @@ const DomainCategoryPage: FunctionComponent<GuidePageStaticProps> = () => {
     </Fragment>
   );
 };
+
 export const getStaticProps: GetStaticProps<GuidePageStaticProps> = async ({
   params,
 }) => {
@@ -82,73 +103,37 @@ export const getStaticProps: GetStaticProps<GuidePageStaticProps> = async ({
 
   const client = await getLisaDbClientFromEnv();
 
-  const [guideLocale] = await client
+  const guide = await client
+    .items(`lisa_guide`)
+    .readMany()
+    .then(completeDataList);
+
+  const guideLocales = await client
     .items(`lisa_guide_locale`)
-    .readMany({
-      filter: {
-        locale_id: localeId,
-      },
-      limit: 1,
-    })
+    .readMany()
     .then(completeDataList);
 
-  const [guideLocaleVersion] = await client
+  const guideLocaleVersions = await client
     .items(`lisa_guide_locale_version`)
-    .readMany({
-      filter: {
-        lisa_guide_locale_id: guideLocale.lisa_guide_locale_id,
-      },
-    })
-    .then(completeDataList)
-    .then((guideLocaleVersions) =>
-      guideLocaleVersions.sort(
-        (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-      ),
-    );
-
-  const guideLocaleAuthors = await client
-    .items(`lisa_guide_locale_author`)
-    .readMany({
-      filter: {
-        lisa_guide_locale_id: guideLocale.lisa_guide_locale_id,
-      },
-    })
+    .readMany()
     .then(completeDataList);
 
-  const authors = await client
-    .items(`lisa_author`)
+  const guideLocaleAuthor = await client
+    .items(`lisa_guide_locale_author`)
     .readMany()
     .then(completeDataList);
 
   return {
     props: {
       localeId,
-
-      guideLocaleVersion: {
-        localeId,
-        name: guideLocaleVersion.name,
-        contentMarkdown: guideLocaleVersion.content_markdown,
-      },
-      guideLocaleAuthors: guideLocaleAuthors
-        .sort((a, b) => (b?.rank ?? 0) - (a?.rank ?? 0))
-        .map(({ lisa_author_id: authorId }) => {
-          const {
-            lisa_author_first_name: firstName,
-            lisa_author_last_name: lastName,
-          } = z
-            .object({
-              lisa_author_first_name: z.string(),
-              lisa_author_last_name: z.string(),
-            })
-            .parse(
-              authors.find((author) => author.lisa_author_id === authorId),
-            );
-          return { firstName, lastName };
-        }),
+      guide,
+      guideLocales,
+      guideLocaleVersions,
+      guideLocaleAuthor,
     },
   };
 };
+
 export const getStaticPaths: GetStaticPaths<{
   readonly localeId: string;
 }> = async () => {
@@ -167,4 +152,5 @@ export const getStaticPaths: GetStaticPaths<{
     fallback: false,
   };
 };
-export default DomainCategoryPage;
+
+export default GuidePage;

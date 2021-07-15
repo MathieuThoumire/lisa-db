@@ -24,17 +24,14 @@ const IndexPage: FunctionComponent = () => {
                     Research-validated instructions to empower young generation
                   </Text>
                 </Box>
-
                 <Flex justifyContent="space-between">
                   <Box paddingTop={7} w="80%" m="auto">
                     <SearchBar />
                   </Box>
                 </Flex>
-
                 <Box paddingTop={7}>
                   Reserved: Slogan or logos of partner organization
                 </Box>
-
                 <Flex height="container" justifyContent="space-between">
                   <Image
                     src="logo.png"
@@ -106,8 +103,8 @@ const IndexPage: FunctionComponent = () => {
         <Link href="/en/guide">/en/guide</Link>
       </Box>
       <Box>
-        <Link href="/en/guide/cognition_attention_educating">
-          /en/guide/cognition_attention_educating
+        <Link href="/en/guide/cognition-attention">
+          /en/guide/cognition-attention
         </Link>
       </Box>
       <Box>
@@ -115,7 +112,6 @@ const IndexPage: FunctionComponent = () => {
           /en/guide/cognition-attention/v/a5495443-915a-4422-b7a1-5514b63494c5
         </Link>
       </Box>
-
       <Footer />
     </Fragment>
   );

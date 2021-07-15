@@ -1,12 +1,5 @@
 import React, { Fragment, FunctionComponent } from "react";
-import {
-  Flex,
-  Heading,
-  ListItem,
-  Box,
-  UnorderedList,
-  Text,
-} from "@chakra-ui/react";
+import { Flex, Heading, ListItem, Box, UnorderedList } from "@chakra-ui/react";
 import { GetStaticPaths, GetStaticProps } from "next";
 import { z } from "zod";
 import { completeDataList, LisaDbCollections } from "@lisa-db/sdk";
@@ -46,8 +39,6 @@ const DomainPage: FunctionComponent<DomainPageStaticProps> = ({
   domainCategoryLocaleVersions,
 }) => {
   return (
-    //MAP patern react tu renvoie un element react
-    //KEY
     <Fragment>
       <TopBar />
       <Flex paddingTop={100} w="80%" m="auto">
@@ -91,7 +82,6 @@ const DomainPage: FunctionComponent<DomainPageStaticProps> = ({
                   if (!domainCategoryLocaleVersion) {
                     return null;
                   }
-
                   return (
                     <ListItem key={domainCategory.domain_category_id}>
                       <Link
@@ -115,7 +105,6 @@ const DomainPage: FunctionComponent<DomainPageStaticProps> = ({
                             if (!domainLocale) {
                               return null;
                             }
-
                             const domainLocaleVersion = domainLocaleVersions
                               .filter(
                                 (domainLocaleVersion) =>
@@ -127,7 +116,6 @@ const DomainPage: FunctionComponent<DomainPageStaticProps> = ({
                                   new Date(b.created_at).getTime() -
                                   new Date(a.created_at).getTime(),
                               )[0];
-
                             if (!domainLocaleVersion) {
                               return null;
                             }
@@ -141,9 +129,6 @@ const DomainPage: FunctionComponent<DomainPageStaticProps> = ({
                                 >
                                   {domainLocaleVersion.name}
                                 </Link>
-                                <Text>
-                                  {domainLocaleVersion.content_markdown}
-                                </Text>
                               </Flex>
                             );
                           })}
@@ -173,6 +158,7 @@ export const getStaticProps: GetStaticProps<DomainPageStaticProps> = async ({
     .parse(params);
 
   const client = await getLisaDbClientFromEnv();
+
   const domains = await client
     .items(`lisa_domain`)
     .readMany()
@@ -218,7 +204,6 @@ export const getStaticProps: GetStaticProps<DomainPageStaticProps> = async ({
 
 export const getStaticPaths: GetStaticPaths<{
   readonly localeId: string;
-
   readonly domainId: string;
 }> = async () => {
   const client = await getLisaDbClientFromEnv();
@@ -233,7 +218,6 @@ export const getStaticPaths: GetStaticPaths<{
       return {
         params: {
           localeId: z.string().parse(localeId),
-
           domainId: z.string().parse(domainId),
         },
       };
